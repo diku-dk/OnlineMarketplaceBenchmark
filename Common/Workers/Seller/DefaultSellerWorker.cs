@@ -16,17 +16,21 @@ namespace Common.Workers.Seller;
  */
 public class DefaultSellerWorker : AbstractSellerWorker
 {
-    protected readonly HttpClient httpClient;
+    protected readonly IHttpClientFactory httpClientFactory;
 
-	protected DefaultSellerWorker(int sellerId, HttpClient httpClient, SellerWorkerConfig workerConfig, ILogger logger) : base(sellerId, workerConfig, logger)
+    // many threads can access the same seller. to avoid contention in the network channel, it is better to use a connection per thread
+    private readonly IDictionary<long, HttpClient> httpClientPerThread;
+
+	protected DefaultSellerWorker(int sellerId, IHttpClientFactory httpClientFactory, SellerWorkerConfig workerConfig, ILogger logger) : base(sellerId, workerConfig, logger)
 	{
-        this.httpClient = httpClient;
+        this.httpClientFactory = httpClientFactory;
+        this.httpClientPerThread = new Dictionary<long, HttpClient>();
 	}
 
 	public static DefaultSellerWorker BuildSellerWorker(int sellerId, IHttpClientFactory httpClientFactory, SellerWorkerConfig workerConfig)
     {
         var logger = LoggerProxy.GetInstance("SellerThread_"+ sellerId);
-        return new DefaultSellerWorker(sellerId, httpClientFactory.CreateClient(), workerConfig, logger);
+        return new DefaultSellerWorker(sellerId, httpClientFactory, workerConfig, logger);
     }
 
     protected override void SendUpdatePriceRequest(Product product, string tid)
@@ -38,7 +42,7 @@ public class DefaultSellerWorker : AbstractSellerWorker
         request.Content = HttpUtils.BuildPayload(serializedObject);
 
         var initTime = DateTime.UtcNow;
-        var resp = this.httpClient.Send(request, HttpCompletionOption.ResponseHeadersRead);
+        var resp = this.GetHttpClient().Send(request, HttpCompletionOption.ResponseHeadersRead);
         if (resp.IsSuccessStatusCode)
         {
             this.DoAfterSuccessUpdate(tid, TransactionType.PRICE_UPDATE);
@@ -61,7 +65,7 @@ public class DefaultSellerWorker : AbstractSellerWorker
         };
 
         var sentTs = DateTime.UtcNow;
-        var resp = this.httpClient.Send(message, HttpCompletionOption.ResponseHeadersRead);
+        var resp = this.GetHttpClient().Send(message, HttpCompletionOption.ResponseHeadersRead);
         if (resp.IsSuccessStatusCode)
         {
             this.DoAfterSuccessUpdate(tid, TransactionType.UPDATE_PRODUCT);
@@ -86,7 +90,7 @@ public class DefaultSellerWorker : AbstractSellerWorker
             HttpRequestMessage message = new(HttpMethod.Get, config.sellerUrl + "/dashboard/" + this.sellerId);
             message.Headers.Accept.Add(new System.Net.Http.Headers.MediaTypeWithQualityHeaderValue("application/json"));
             var startTs = DateTime.UtcNow;
-            var response = this.httpClient.Send(message);
+            var response = this.GetHttpClient().Send(message);
             var endTs = DateTime.UtcNow;
             if (response.IsSuccessStatusCode)
             {
@@ -105,6 +109,17 @@ public class DefaultSellerWorker : AbstractSellerWorker
             this.abortedTransactions.Add(new TransactionMark(tid, TransactionType.QUERY_DASHBOARD, this.sellerId, MarkStatus.ABORT, "seller"));
             this.logger.LogError("Seller {0}: Dashboard could not be retrieved: {1}", this.sellerId, e.Message);
         }
+    }
+
+    private HttpClient GetHttpClient()
+    {
+        if( this.httpClientPerThread.ContainsKey(Environment.CurrentManagedThreadId))
+        {
+            return this.httpClientPerThread[Environment.CurrentManagedThreadId];
+        }
+        var httpClient = this.httpClientFactory.CreateClient();
+        this.httpClientPerThread.Add(Environment.CurrentManagedThreadId, httpClient);
+        return httpClient;
     }
 
 }

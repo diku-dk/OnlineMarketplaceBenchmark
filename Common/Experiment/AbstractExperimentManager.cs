@@ -103,14 +103,14 @@ public abstract class AbstractExperimentManager
             {
                 this.sellerThreads[i] = this.sellerService.BuildSellerWorker(i, this.httpClientFactory, this.config.sellerWorkerConfig); 
             }
-            this.sellerThreads[i].SetUp(products, this.config.runs[runIdx].keyDistribution);
+            this.sellerThreads[i].SetUp(products, this.config.runs[runIdx].keyDistribution,  this.config.runs[runIdx].productZipfian);
         }
 
         Console.WriteLine("Setting up seller workload info in customer workers...");
         Interval sellerRange = new Interval(1, this.numSellers);
         for (int i = this.customerRange.min; i <= this.customerRange.max; i++)
         {
-            this.customerThreads[i].SetUp(this.config.runs[runIdx].sellerDistribution, sellerRange, this.config.runs[runIdx].keyDistribution);
+            this.customerThreads[i].SetUp(sellerRange, this.config.runs[runIdx].sellerDistribution, this.config.runs[runIdx].keyDistribution, this.config.runs[runIdx].sellerZipfian, this.config.runs[runIdx].productZipfian);
         }
     }
 
@@ -220,7 +220,7 @@ public abstract class AbstractExperimentManager
 
             this.PreWorkload(runIdx);
 
-            this.workloadManager.SetUp(this.config.runs[runIdx].sellerDistribution, new Interval(1, this.numSellers));
+            this.workloadManager.SetUp(new Interval(1, this.numSellers), this.config.runs[runIdx].sellerDistribution, this.config.runs[runIdx].sellerZipfian);
 
             LOGGER.LogInformation(RunStartedMessage, runIdx, DateTime.UtcNow);
 
@@ -257,7 +257,7 @@ public abstract class AbstractExperimentManager
         this.customers = DuckDbUtils.SelectAll<Customer>(this.connection, "customers");
         this.PreExperiment();
         this.PreWorkload(0);
-        this.workloadManager.SetUp(this.config.runs[0].sellerDistribution, new Interval(1, this.numSellers));
+        this.workloadManager.SetUp(new Interval(1, this.numSellers), this.config.runs[0].sellerDistribution, this.config.runs[0].sellerZipfian);
         (DateTime startTime, DateTime finishTime) = this.workloadManager.Run();
         this.Collect(0, startTime, finishTime);
         this.PostRunTasks(0);
@@ -267,8 +267,7 @@ public abstract class AbstractExperimentManager
 
     protected static void CollectGarbage()
     {
-        LOGGER.LogInformation(InitGcMessage,
-        GC.GetTotalMemory(false));
+        LOGGER.LogInformation(InitGcMessage,GC.GetTotalMemory(false));
         // Collect all generations of memory.
         GC.Collect();
         LOGGER.LogInformation(AfterGcMessage,

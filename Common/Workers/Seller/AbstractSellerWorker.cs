@@ -51,7 +51,7 @@ public abstract class AbstractSellerWorker : ISellerWorker
         this.trackedUpdates = new List<Product>();
     }
 
-    public void SetUp(List<Product> sellerProducts, DistributionType keyDistribution)
+    public void SetUp(List<Product> sellerProducts, DistributionType productDistribution, double productZipfian)
     {
         this.products = sellerProducts.ToArray();
         this.productLocks = new object[this.products.Length];
@@ -60,9 +60,9 @@ public abstract class AbstractSellerWorker : ISellerWorker
             this.productLocks[i] = new object();
         }
 
-        this.productIdGenerator = keyDistribution == DistributionType.UNIFORM ?
+        this.productIdGenerator = productDistribution == DistributionType.UNIFORM ?
                                  new DiscreteUniform(1, sellerProducts.Count, Random.Shared) :
-                                 new Zipf(WorkloadManager.productZipfian, sellerProducts.Count, Random.Shared);
+                                 new Zipf(productZipfian, sellerProducts.Count, Random.Shared);
         this.submittedTransactions.Clear();
         this.finishedTransactions.Clear();
         this.abortedTransactions.Clear();

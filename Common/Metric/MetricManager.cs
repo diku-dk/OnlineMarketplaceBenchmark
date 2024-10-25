@@ -55,11 +55,16 @@ public class MetricManager
             var latency = (entry.timestamp - init.timestamp).TotalMilliseconds;
             if (latency < 0)
             {
-                LOGGER.LogWarning("[{0}] Negative latency found for TID {1}. Init {2} End {3}", workerType, entry.tid, init, entry);
-                continue;
+                // clock skew between threads. considered within the error range
+                if(latency > -100)
+                {
+                    latency *= -1;
+                } else {
+                    LOGGER.LogWarning("[{0}] Negative latency found for TID {1}. Init {2} End {3}", workerType, entry.tid, init, entry);
+                    continue;
+                }
             }
             latencyList.Add(new Latency(entry.tid, init.type, latency, entry.timestamp));
-
         }
         return latencyList;
     }

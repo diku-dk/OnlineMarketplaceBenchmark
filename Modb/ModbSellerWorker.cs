@@ -10,14 +10,14 @@ namespace Modb;
 public sealed class ModbSellerWorker : DefaultSellerWorker
 {
 
-	private ModbSellerWorker(int sellerId, HttpClient httpClient, SellerWorkerConfig workerConfig, ILogger logger) : base(sellerId, httpClient, workerConfig, logger)
+	private ModbSellerWorker(int sellerId, IHttpClientFactory httpClientFactory, SellerWorkerConfig workerConfig, ILogger logger) : base(sellerId, httpClientFactory, workerConfig, logger)
 	{
 	}
 
 	public static new ModbSellerWorker BuildSellerWorker(int sellerId, IHttpClientFactory httpClientFactory, SellerWorkerConfig workerConfig)
     {
         var logger = LoggerProxy.GetInstance("ModbSellerWorker_"+ sellerId);
-        return new ModbSellerWorker(sellerId, httpClientFactory.CreateClient(), workerConfig, logger);
+        return new ModbSellerWorker(sellerId, httpClientFactory, workerConfig, logger);
     }
 
     protected override void DoAfterSuccessUpdate(string tid, TransactionType transactionType)

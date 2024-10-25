@@ -8,8 +8,6 @@ namespace Common.Workload;
 
 public class WorkloadManager
 {
-    public const double sellerZipfian = 1;
-    public const double productZipfian = 1;
 
     public delegate WorkloadManager BuildWorkloadManagerDelegate(ISellerService sellerService,
                 ICustomerService customerService,
@@ -81,7 +79,7 @@ public class WorkloadManager
     }
 
     // can differ across runs
-    public void SetUp(DistributionType sellerDistribution, Interval sellerRange)
+    public void SetUp(Interval sellerRange, DistributionType sellerDistribution, double sellerZipfian)
     {
         this.sellerIdGenerator =
                     sellerDistribution == DistributionType.UNIFORM ?
@@ -98,7 +96,6 @@ public class WorkloadManager
         {
             this.customerIdleQueue.Add(i);
         }
-
     }
 
     public virtual (DateTime startTime, DateTime finishTime) Run(CancellationTokenSource cancellationTokenSource = null)

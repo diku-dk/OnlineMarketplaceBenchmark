@@ -10,14 +10,14 @@ namespace Orleans.Workers;
 public sealed class ActorSellerWorker : DefaultSellerWorker
 {
 
-	private ActorSellerWorker(int sellerId, HttpClient httpClient, SellerWorkerConfig workerConfig, ILogger logger) : base(sellerId, httpClient, workerConfig, logger)
+	private ActorSellerWorker(int sellerId, IHttpClientFactory httpClientFactory, SellerWorkerConfig workerConfig, ILogger logger) : base(sellerId, httpClientFactory, workerConfig, logger)
 	{
 	}
 
 	public static new ActorSellerWorker BuildSellerWorker(int sellerId, IHttpClientFactory httpClientFactory, SellerWorkerConfig workerConfig)
     {
         var logger = LoggerProxy.GetInstance("SellerThread_"+ sellerId);
-        return new ActorSellerWorker(sellerId, httpClientFactory.CreateClient(), workerConfig, logger);
+        return new ActorSellerWorker(sellerId, httpClientFactory, workerConfig, logger);
     }
 
     protected override void DoAfterSuccessUpdate(string tid, TransactionType transactionType)

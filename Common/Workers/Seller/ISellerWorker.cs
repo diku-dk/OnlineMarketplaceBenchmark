@@ -42,7 +42,7 @@ public interface ISellerWorker
 
     Product GetProduct(int idx);
 
-    void SetUp(List<Product> products, DistributionType keyDistribution);
+    void SetUp(List<Product> products, DistributionType keyDistribution, double productZipfian);
 
     void AddFinishedTransaction(TransactionOutput transactionOutput);
 

@@ -37,7 +37,7 @@ public sealed class ModbExperimentManager : AbstractExperimentManager
         this.customers = DuckDbUtils.SelectAll<Customer>(this.connection, "customers");
         this.PreExperiment();
         this.PreWorkload(0);
-        this.workloadManager.SetUp(this.config.runs[0].sellerDistribution, new Interval(1, this.numSellers));
+        this.workloadManager.SetUp(new Interval(1, this.numSellers), this.config.runs[0].sellerDistribution, this.config.runs[0].sellerZipfian);
         this.metricManager.SetUp(this.numSellers, this.config.numCustomers);
 
         var tokenSource = new CancellationTokenSource();

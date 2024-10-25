@@ -4,8 +4,8 @@
     "numProdPerSeller": 10,
     "qtyPerProduct": 10000,
     "executionTime": 10000,
-    "epoch": 2000,
-    "concurrencyLevel": 4,
+    "epoch": 0,
+    "concurrencyLevel": 1,
     "concurrencyType": "CONTINUOUS",
     "pollingRate": 250,
     "pollingUrl": "http://localhost:8091",
@@ -15,17 +15,16 @@
         "PRICE_UPDATE": 10,
         "UPDATE_PRODUCT": 20,
         "QUERY_DASHBOARD": 30,
-        //"UPDATE_DELIVERY": 40,
         "CUSTOMER_SESSION": 100
     },
     "ingestionConfig": {
         "strategy": "WORKER_PER_CPU",
         "concurrencyLevel": 4,
         "mapTableToUrl": {
-            "products": "http://localhost:8081/product",
-            "stock_items": "http://localhost:8082/stock"
-            //"customers": "http://localhost:8086/customer",
-            //"sellers": "http://localhost:8087/seller",
+            //"sellers": "http://localhost:8001/seller",
+            //"customers": "http://localhost:8001/customer",
+            "stock_items": "http://localhost:8082/stock",
+            "products": "http://localhost:8081/product"
         }
     },
     "runs": [
@@ -34,10 +33,13 @@
             "sellerDistribution": "UNIFORM",
             "keyDistribution": "UNIFORM"
             //"sellerDistribution": "ZIPFIAN",
-            //"keyDistribution": "ZIPFIAN"
+            //"sellerZipfian": 0.2,
+            //"keyDistribution": "ZIPFIAN",
+            //"productZipfian": 0.2
         }
     ],
-    "postRunTasks": [ ],
+    "postRunTasks": [
+    ],
     "postExperimentTasks": [
         {
             "name": "cart",

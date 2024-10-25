@@ -1,4 +1,5 @@
-﻿using Common.Entities;
+﻿using Common.Distribution;
+using Common.Entities;
 using Common.Infra;
 using Common.Services;
 using Common.Streaming;
@@ -49,7 +50,7 @@ public class CustomerTests
             var toPass = i;
             var logger = LoggerProxy.GetInstance("SellerThread_" + toPass);
             threads[toPass] = new CustomerThreadTest(testSellerService, 2, config, new Customer() { id = toPass }, logger);
-            threads[toPass].SetUp(Common.Distribution.DistributionType.UNIFORM, new Interval(1, 2), Common.Distribution.DistributionType.UNIFORM);
+            threads[toPass].SetUp(new Interval(1, 2), DistributionType.UNIFORM, DistributionType.UNIFORM, 0, 0);
             tasks.Add(Task.Run(() => threads[toPass].Run(toPass.ToString())));
         }
 

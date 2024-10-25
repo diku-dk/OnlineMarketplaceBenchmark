@@ -12,14 +12,14 @@ namespace Statefun.Workers;
 public sealed class StatefunDeliveryWorker : DefaultDeliveryWorker
 {
 
-    private StatefunDeliveryWorker(DeliveryWorkerConfig config, HttpClient httpClient, ILogger logger) : base(config, httpClient, logger)
+    private StatefunDeliveryWorker(DeliveryWorkerConfig config, IHttpClientFactory httpClientFactory, ILogger logger) : base(config, httpClientFactory, logger)
     {       
     }
 
     public static new StatefunDeliveryWorker BuildDeliveryWorker(IHttpClientFactory httpClientFactory, DeliveryWorkerConfig config)
     {
         var logger = LoggerProxy.GetInstance("Delivery");
-        return new StatefunDeliveryWorker(config, httpClientFactory.CreateClient(), logger);
+        return new StatefunDeliveryWorker(config, httpClientFactory, logger);
     }
 
     public override void Run(string tid)
@@ -31,7 +31,7 @@ public sealed class StatefunDeliveryWorker : DefaultDeliveryWorker
         string contentType = string.Concat(StatefunUtils.BASE_CONTENT_TYPE, eventType);
 
         var initTime = DateTime.UtcNow; 
-        HttpResponseMessage resp = StatefunUtils.SendHttpToStatefun(this.httpClient, apiUrl, contentType, payLoad).Result;      
+        HttpResponseMessage resp = StatefunUtils.SendHttpToStatefun(this.GetHttpClient(), apiUrl, contentType, payLoad).Result;      
 
         if (resp.IsSuccessStatusCode)
         {

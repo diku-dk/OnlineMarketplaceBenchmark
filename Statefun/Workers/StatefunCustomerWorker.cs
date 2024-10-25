@@ -27,9 +27,10 @@ public sealed class StatefunCustomerWorker : DefaultCustomerWorker
         return new StatefunCustomerWorker(sellerService, numberOfProducts, config, customer, httpClientFactory.CreateClient(), logger);
     }
 
-    public override void SetUp(DistributionType sellerDistribution, Interval sellerRange, DistributionType keyDistribution)
+    public override void SetUp(Interval sellerRange, DistributionType sellerDistribution,  DistributionType keyDistribution,
+                                double sellerZipfian, double productZipfian)
     {
-        base.SetUp(sellerDistribution, sellerRange, keyDistribution);
+        base.SetUp(sellerRange, sellerDistribution, keyDistribution, sellerZipfian, productZipfian);
     }
 
     protected override void BuildAddCartPayloadAndSend(string payLoad)

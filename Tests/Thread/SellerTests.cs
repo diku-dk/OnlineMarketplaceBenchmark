@@ -1,4 +1,5 @@
-﻿using Common.Entities;
+﻿using Common.Distribution;
+using Common.Entities;
 using Common.Infra;
 using Common.Workers.Seller;
 using Common.Workload;
@@ -32,7 +33,7 @@ public class SellerTests
 
         var productList = new List<Product>(){ new Product(){ product_id = 1, price = 10, version = "0", freight_value = 0 },
                                                new Product(){ product_id = 2, price = 10, version = "0", freight_value = 0 } };
-        testSeller.SetUp(productList, Common.Distribution.DistributionType.UNIFORM );
+        testSeller.SetUp(productList, DistributionType.UNIFORM, 0);
 
         var tasks = new List<Task>(100);
 
@@ -118,7 +119,7 @@ public class SellerTests
         var testSeller = new TestSingleProductSeller(1, new SellerWorkerConfig(){ adjustRange = new Interval(1,10) }, logger);
 
         var productList = new List<Product>() { new Product() { product_id = 1, price = 10, version = "0", freight_value = 0 } };
-        testSeller.SetUp(productList, Common.Distribution.DistributionType.UNIFORM );
+        testSeller.SetUp(productList, DistributionType.UNIFORM, 0);
 
         var tasks = new List<Task>(100);
 

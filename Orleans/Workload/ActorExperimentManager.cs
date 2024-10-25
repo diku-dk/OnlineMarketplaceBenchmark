@@ -32,7 +32,7 @@ public sealed class ActorExperimentManager : AbstractExperimentManager
         this.customers = DuckDbUtils.SelectAll<Customer>(this.connection, "customers");
         this.PreExperiment();
         this.PreWorkload(0);
-        this.myWorkloadManager.SetUp(this.config.runs[0].sellerDistribution, new Interval(1, this.numSellers));
+        this.myWorkloadManager.SetUp(new Interval(1, this.numSellers), this.config.runs[0].sellerDistribution, this.config.runs[0].sellerZipfian);
         (DateTime startTime, DateTime finishTime) res;
         if(type == 0){
             Console.WriteLine("Thread mode selected.");

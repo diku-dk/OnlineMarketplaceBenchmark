@@ -7,7 +7,8 @@ namespace Common.Workers.Customer;
 
 public interface ICustomerWorker
 {
-    void SetUp(DistributionType sellerDistribution, Interval sellerRange, DistributionType keyDistribution);
+    void SetUp(Interval sellerRange, DistributionType sellerDistribution, DistributionType keyDistribution,
+        double sellerZipfian, double productZipfian);
 
     void Run(string tid);
 
@@ -20,4 +21,3 @@ public interface ICustomerWorker
     IDictionary<string, List<CartItem>> GetCartItemsPerTid(DateTime finishTime);
 
 }
-

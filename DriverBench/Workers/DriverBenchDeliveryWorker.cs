@@ -9,14 +9,14 @@ namespace DriverBench.Workers;
 
 public sealed class DriverBenchDeliveryWorker : DefaultDeliveryWorker
 {
-    private DriverBenchDeliveryWorker(DeliveryWorkerConfig config, HttpClient httpClient, ILogger logger) : base(config, httpClient, logger)
+    private DriverBenchDeliveryWorker(DeliveryWorkerConfig config, IHttpClientFactory httpClientFactory, ILogger logger) : base(config, httpClientFactory, logger)
     {
     }
 
     public static new DriverBenchDeliveryWorker BuildDeliveryWorker(IHttpClientFactory httpClientFactory, DeliveryWorkerConfig config)
     {
         var logger = LoggerProxy.GetInstance("DriverBenchDeliveryWorker");
-        return new DriverBenchDeliveryWorker(config, httpClientFactory.CreateClient(), logger);
+        return new DriverBenchDeliveryWorker(config, httpClientFactory, logger);
     }
 
     public override void Run(string tid)
