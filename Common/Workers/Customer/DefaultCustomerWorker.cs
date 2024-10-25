@@ -17,6 +17,7 @@ namespace Common.Workers.Customer;
 public class DefaultCustomerWorker : AbstractCustomerWorker
 {
     protected readonly HttpClient httpClient;
+
     protected readonly IDictionary<(int sellerId, int productId),Product> cartItems;
 
     protected readonly ISet<string> tids;

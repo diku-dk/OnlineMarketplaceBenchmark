@@ -10,18 +10,18 @@ public sealed class CustomHttpClientFactory : IHttpClientFactory
     {
         UseProxy = false,
         Proxy = null,
-        UseCookies = false
+        UseCookies = false, 
     };
 
     static readonly HttpClient sharedClient;
 
     static CustomHttpClientFactory() {
         sharedClient = new HttpClient(handler);
-        sharedClient.Timeout = TimeSpan.FromSeconds(10);
+        sharedClient.Timeout = TimeSpan.FromMilliseconds(250);
         sharedClient.DefaultRequestHeaders.ConnectionClose = false;
     }
 
-    public HttpClient CreateClient(string name)
+    public HttpClient CreateClient(string name = null)
     {
         return sharedClient;
     }

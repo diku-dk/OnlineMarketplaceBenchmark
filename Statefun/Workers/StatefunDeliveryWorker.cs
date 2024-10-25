@@ -31,7 +31,7 @@ public sealed class StatefunDeliveryWorker : DefaultDeliveryWorker
         string contentType = string.Concat(StatefunUtils.BASE_CONTENT_TYPE, eventType);
 
         var initTime = DateTime.UtcNow; 
-        HttpResponseMessage resp = StatefunUtils.SendHttpToStatefun(this.GetHttpClient(), apiUrl, contentType, payLoad).Result;      
+        HttpResponseMessage resp = StatefunUtils.SendHttpToStatefun(this.httpClient, apiUrl, contentType, payLoad).Result;      
 
         if (resp.IsSuccessStatusCode)
         {

@@ -13,9 +13,7 @@ namespace Common.Workers.Delivery;
  */
 public class DefaultDeliveryWorker : IDeliveryWorker
 {
-    private readonly IDictionary<long, HttpClient> httpClientPerThread;
-
-    private readonly IHttpClientFactory httpClientFactory;
+    protected readonly HttpClient httpClient;
 
     protected readonly DeliveryWorkerConfig config;
 
@@ -33,33 +31,38 @@ public class DefaultDeliveryWorker : IDeliveryWorker
         return new DefaultDeliveryWorker(config, httpClientFactory, logger);
     }
 
-    protected DefaultDeliveryWorker(DeliveryWorkerConfig config, IHttpClientFactory httpClient, ILogger logger)
+    protected DefaultDeliveryWorker(DeliveryWorkerConfig config, IHttpClientFactory httpClientFactory, ILogger logger)
     {
         this.config = config;
-        this.httpClientFactory = httpClient;
+        this.httpClient = httpClientFactory.CreateClient();
         this.logger = logger;
         this.abortedTransactions = new();
         this.submittedTransactions = new();
         this.finishedTransactions = new();
-        this.httpClientPerThread = new ConcurrentDictionary<long, HttpClient>();
     }
 
     public virtual void Run(string tid)
     {
         HttpRequestMessage message = new HttpRequestMessage(HttpMethod.Patch, this.config.shipmentUrl + "/" + tid);
         var initTime = DateTime.UtcNow;
-        var resp = this.GetHttpClient().Send(message);
-        if (resp.IsSuccessStatusCode)
+        try {
+            var resp = this.httpClient.Send(message);
+            if (resp.IsSuccessStatusCode)
+            {
+                var endTime = DateTime.UtcNow;
+                var init = new TransactionIdentifier(tid, TransactionType.UPDATE_DELIVERY, initTime);
+                this.submittedTransactions.Add(init);
+                DoAfterSuccessSubmission(new TransactionOutput(tid, endTime));
+            }
+            else
+            {
+                this.abortedTransactions.Add(new TransactionMark(tid, TransactionType.UPDATE_DELIVERY, 1, MarkStatus.ABORT, "shipment"));
+                this.logger.LogDebug("Delivery worker failed to update delivery for TID {0}: {1}", tid, resp.ReasonPhrase);
+            }
+        } catch(Exception e)
         {
-            var endTime = DateTime.UtcNow;
-            var init = new TransactionIdentifier(tid, TransactionType.UPDATE_DELIVERY, initTime);
-            this.submittedTransactions.Add(init);
-            DoAfterSuccessSubmission(new TransactionOutput(tid, endTime));
-        }
-        else
-        {
-            this.abortedTransactions.Add(new TransactionMark(tid, TransactionType.UPDATE_DELIVERY, 1, MarkStatus.ABORT, "shipment"));
-            this.logger.LogDebug("Delivery worker failed to update delivery for TID {0}: {1}", tid, resp.ReasonPhrase);
+             this.abortedTransactions.Add(new TransactionMark(tid, TransactionType.UPDATE_DELIVERY, 1, MarkStatus.ABORT, "shipment"));
+                this.logger.LogDebug("Delivery worker failed to update delivery for TID {0}: {1}", tid, e);
         }
     }
 
@@ -101,17 +104,6 @@ public class DefaultDeliveryWorker : IDeliveryWorker
             list.Add(item);
         }
         return list;
-    }
-
-    protected HttpClient GetHttpClient()
-    {
-        if( this.httpClientPerThread.ContainsKey(Environment.CurrentManagedThreadId))
-        {
-            return this.httpClientPerThread[Environment.CurrentManagedThreadId];
-        }
-        var httpClient = this.httpClientFactory.CreateClient();
-        this.httpClientPerThread.Add(Environment.CurrentManagedThreadId, httpClient);
-        return httpClient;
     }
 
 }

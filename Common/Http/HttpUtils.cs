@@ -4,9 +4,6 @@ namespace Common.Http;
 
 public sealed class HttpUtils
 {
-
-    // https://www.stevejgordon.co.uk/using-httpcompletionoption-responseheadersread-to-improve-httpclient-performance-dotnet
-    // https://www.stevejgordon.co.uk/httpclient-connection-pooling-in-dotnet-core
     public static readonly HttpClient client; 
 
     static HttpUtils()
@@ -17,7 +14,7 @@ public sealed class HttpUtils
             Proxy = null,
             UseCookies = false,
         });
-        client.Timeout = TimeSpan.FromSeconds(10);
+        client.Timeout = TimeSpan.FromMilliseconds(1000);
         client.DefaultRequestHeaders.ConnectionClose = false;
     }
 
