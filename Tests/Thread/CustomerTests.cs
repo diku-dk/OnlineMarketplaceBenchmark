@@ -37,7 +37,7 @@ public class CustomerTests
 
         CustomerWorkerConfig config = new()
         {
-            maxNumberKeysToAddToCart = 2,
+            minMaxNumItemsRange = new Interval(1,2),
             checkoutProbability = 100,
         };
 
@@ -74,7 +74,7 @@ public class CustomerTests
 
         protected override void AddItemsToCart()
         {
-            int numberOfProducts = random.Next(1, this.config.maxNumberKeysToAddToCart + 1);
+            int numberOfProducts = random.Next(1, this.config.minMaxNumItemsRange.max + 1);
             while (this.cartItems.Count < numberOfProducts)
             {
                 var sellerId = this.sellerIdGenerator.Sample();

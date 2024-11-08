@@ -154,7 +154,7 @@ public sealed class IngestionOrchestratorV1
         }
         try
         {
-            using HttpResponseMessage response = HttpUtils.client.Send(message);
+            using HttpResponseMessage response = HttpUtils.HTTP_CLIENT.Send(message);
         }
         catch (Exception e)
         {

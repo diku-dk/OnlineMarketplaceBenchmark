@@ -30,7 +30,7 @@ public sealed class StatefunPollingThread
 
     public async Task Run(CancellationToken cancellationToken) {        
         int i = 0;
-        var httpClient = HttpUtils.client;
+        var httpClient = HttpUtils.HTTP_CLIENT;
         while (!cancellationToken.IsCancellationRequested)
         {
             try

@@ -18,14 +18,14 @@ public class DefaultCustomerWorker : AbstractCustomerWorker
 {
     protected readonly HttpClient httpClient;
 
-    protected readonly IDictionary<(int sellerId, int productId),Product> cartItems;
+    protected readonly IDictionary<(int sellerId, int productId), Product> cartItems;
 
     protected readonly ISet<string> tids;
 
     protected DefaultCustomerWorker(ISellerService sellerService, int numberOfProducts, CustomerWorkerConfig config, Entities.Customer customer, HttpClient httpClient, ILogger logger) : base(sellerService, numberOfProducts, config, customer, logger)
     {
         this.httpClient = httpClient;
-        this.cartItems = new Dictionary<(int, int),Product>(config.maxNumberKeysToAddToCart);
+        this.cartItems = new Dictionary<(int, int), Product>(config.minMaxNumItemsRange.max);
         this.tids = new HashSet<string>();
     }
 
@@ -37,23 +37,34 @@ public class DefaultCustomerWorker : AbstractCustomerWorker
 
     protected override void AddItemsToCart()
     {
-        int numberKeysToAddToCart = this.random.Next(1, this.config.maxNumberKeysToAddToCart + 1);
-        while (this.cartItems.Count < numberKeysToAddToCart)
+        int numberKeysToAddToCart = this.random.Next(this.config.minMaxNumItemsRange.min, this.config.minMaxNumItemsRange.max + 1);
+        if (this.config.uniqueSeller)
         {
-            this.AddItem();
+            int sellerId = this.sellerIdGenerator.Sample();
+            // prevent cases where number of products per seller is lower than number of items in the cart
+            numberKeysToAddToCart = Math.Min(this.numberOfProducts, numberKeysToAddToCart);
+            while (this.cartItems.Count < numberKeysToAddToCart)
+            {
+                this.AddItem(sellerId);
+            }
+        } else {
+            while (this.cartItems.Count < numberKeysToAddToCart)
+            {
+                int sellerId = this.sellerIdGenerator.Sample();
+                this.AddItem(sellerId);
+            }
         }
     }
 
-    private void AddItem()
+    private void AddItem(int sellerId)
     {
-        var sellerId = this.sellerIdGenerator.Sample();
-        var product = sellerService.GetProduct(sellerId, this.productIdGenerator.Sample() - 1);
+        Product product = this.sellerService.GetProduct(sellerId, this.productIdGenerator.Sample() - 1);
         if (this.cartItems.TryAdd((sellerId, product.product_id), product))
         {
-            var quantity = this.random.Next(this.config.minMaxQtyRange.min, this.config.minMaxQtyRange.max + 1);
+            int quantity = this.random.Next(this.config.minMaxQtyRange.min, this.config.minMaxQtyRange.max + 1);
             try
             {
-                var objStr = this.BuildCartItem(product, quantity);
+                string objStr = this.BuildCartItem(product, quantity);
                 this.BuildAddCartPayloadAndSend(objStr);
             }
             catch (Exception e)
@@ -96,11 +107,10 @@ public class DefaultCustomerWorker : AbstractCustomerWorker
 
     protected override void SendCheckoutRequest(string tid)
     {
-        var objStr = this.BuildCheckoutPayload(tid);
-        var payload = HttpUtils.BuildPayload(objStr);
+        string objStr = this.BuildCheckoutPayload(tid);
+        StringContent payload = HttpUtils.BuildPayload(objStr);
         string url = this.BuildCheckoutUrl();
         int maxAttempts = this.GetMaxCheckoutAttempts();
-
         DateTime sentTs;
         int attempt = 0;
         try
@@ -131,7 +141,6 @@ public class DefaultCustomerWorker : AbstractCustomerWorker
             this.logger.LogError("Customer {0} Url {1}: Exception Message: {5} ", this.customer.id, url, e.Message);
             this.InformFailedCheckout();
         }
-
     }
 
     protected override void DoAfterCustomerSession()

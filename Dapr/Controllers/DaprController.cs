@@ -109,7 +109,7 @@ public class DaprController : ControllerBase
         }
         await CustomIngestionOrchestrator.Run(CONNECTION, CONFIG.ingestionConfig);
         var expManager = DaprExperimentManager
-                            .BuildDaprExperimentManager(new CustomHttpClientFactory(), CONFIG, CONNECTION);
+                            .BuildDaprExperimentManager(CustomHttpClientFactory.GetInstance(), CONFIG, CONNECTION);
         expManager.RunSimpleExperiment();
         return Ok("Experiment finished");
     }
@@ -148,7 +148,7 @@ public class DaprController : ControllerBase
             return BadRequest("Please register a configuration first.");
         }
         var expManager = DaprExperimentManager
-                            .BuildDaprExperimentManager(new CustomHttpClientFactory(), CONFIG, CONNECTION);
+                            .BuildDaprExperimentManager(CustomHttpClientFactory.GetInstance(), CONFIG, CONNECTION);
         expManager.TrimStreams();
         Console.WriteLine(STREAMS_TRIMMED_OK);
         return Ok(STREAMS_TRIMMED_OK);

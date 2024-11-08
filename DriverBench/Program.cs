@@ -46,7 +46,7 @@ public sealed class Program
                                 connection.Open();
                             }
                         }
-                        var expManager = DriverBenchExperimentManager.BuildDriverBenchExperimentManager(new CustomHttpClientFactory(), config, connection);
+                        var expManager = DriverBenchExperimentManager.BuildDriverBenchExperimentManager(CustomHttpClientFactory.GetInstance(), config, connection);
                         expManager.RunSimpleExperiment();
                         break;
                     }

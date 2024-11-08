@@ -64,7 +64,7 @@ public sealed class Program
                 }
 
                 var expManager = ModbExperimentManager
-                                .BuildModbExperimentManager(new CustomHttpClientFactory(), config, connection);
+                                .BuildModbExperimentManager(CustomHttpClientFactory.GetInstance(), config, connection);
                 expManager.RunSimpleExperiment();
                 Console.WriteLine("Experiment finished.");
                 break;
@@ -86,7 +86,7 @@ public sealed class Program
                 // ingest data
                 await CustomIngestionOrchestrator.Run(connection, config.ingestionConfig);
                 var expManager = ModbExperimentManager
-                                .BuildModbExperimentManager(new CustomHttpClientFactory(), config, connection);
+                                .BuildModbExperimentManager(CustomHttpClientFactory.GetInstance(), config, connection);
 
                 expManager.RunSimpleExperiment();
                 Console.WriteLine("Experiment finished.");
@@ -101,7 +101,7 @@ public sealed class Program
             case "6":
             {
                 var expManager = ModbExperimentManager
-                                .BuildModbExperimentManager(new CustomHttpClientFactory(), config, connection);
+                                .BuildModbExperimentManager(CustomHttpClientFactory.GetInstance(), config, connection);
                 expManager.PostExperiment();
                 break;
             }

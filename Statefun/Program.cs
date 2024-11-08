@@ -66,7 +66,7 @@ public class Program
                                 connection.Open();
                             }
                         }
-                        var expManager = StatefunExperimentManager.BuildStatefunExperimentManager(new CustomHttpClientFactory(), config, connection);
+                        var expManager = StatefunExperimentManager.BuildStatefunExperimentManager(CustomHttpClientFactory.GetInstance(), config, connection);
                         await expManager.Run();
                         Console.WriteLine("Experiment finished.");
                         break;
@@ -90,7 +90,7 @@ public class Program
                         await CustomIngestionOrchestrator.Run(connection, config.ingestionConfig);
                         Console.WriteLine("Delay after ingest...");
                         await Task.Delay(10000);
-                        var expManager = StatefunExperimentManager.BuildStatefunExperimentManager(new CustomHttpClientFactory(), config,connection);
+                        var expManager = StatefunExperimentManager.BuildStatefunExperimentManager(CustomHttpClientFactory.GetInstance(), config,connection);
                         await expManager.Run();
                         Console.WriteLine("Experiment finished.");
                         break;

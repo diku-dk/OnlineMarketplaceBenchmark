@@ -19,7 +19,7 @@
     },
     "ingestionConfig": {
         "strategy": "WORKER_PER_CPU",
-        "concurrencyLevel": 8,
+        "concurrencyLevel": 4,
         "mapTableToUrl": {
             //"sellers": "http://localhost:8001/seller",
             //"customers": "http://localhost:8001/customer",
@@ -38,8 +38,7 @@
             //"productZipfian": 0.2
         }
     ],
-    "postRunTasks": [
-    ],
+    "postRunTasks": [ ],
     "postExperimentTasks": [
         {
             "name": "cart",
@@ -71,7 +70,10 @@
         }
     ],
     "customerWorkerConfig": {
-        "maxNumberKeysToAddToCart": 10,
+        "minMaxNumItemsRange": {
+            "min": 1,
+            "max": 10
+        },
         "minMaxQtyRange": {
             "min": 1,
             "max": 10
@@ -84,7 +86,8 @@
         "voucherProbability": 0,
         "cartUrl": "http://localhost:8080/cart",
         "checkoutUrl": "http://localhost:8091/cart",
-        "trackTids": false
+        "trackTids": false,
+        "uniqueSeller":  true
     },
     "sellerWorkerConfig": {
         "trackUpdates": false,

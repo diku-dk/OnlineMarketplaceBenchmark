@@ -26,7 +26,7 @@ public sealed class ModbPollingTask
     {
         var request = new HttpRequestMessage(HttpMethod.Get, this.urlSubmitted);
         request.Headers.Add("Accept","application/octet-stream");
-        HttpResponseMessage response = HttpUtils.client.Send(request);
+        HttpResponseMessage response = HttpUtils.HTTP_CLIENT.Send(request);
         if(!response.IsSuccessStatusCode)
         {
             Console.WriteLine("Request for last submitted TID failed: "+response.ReasonPhrase);
@@ -41,7 +41,7 @@ public sealed class ModbPollingTask
         var request = new HttpRequestMessage(HttpMethod.Get, this.urlCommitted);
         request.Headers.Add("Accept","application/octet-stream");
 
-        HttpResponseMessage response = HttpUtils.client.Send(request);
+        HttpResponseMessage response = HttpUtils.HTTP_CLIENT.Send(request);
         if(!response.IsSuccessStatusCode)
         {
             Console.WriteLine("Request for last committed TID failed: "+response.ReasonPhrase);
@@ -73,7 +73,7 @@ public sealed class ModbPollingTask
         request.Headers.Accept.Add(new System.Net.Http.Headers.MediaTypeWithQualityHeaderValue("text/event-stream"));
         try
         {
-            using (HttpResponseMessage response = await HttpUtils.client.SendAsync(request, HttpCompletionOption.ResponseHeadersRead, token))
+            using (HttpResponseMessage response = await HttpUtils.HTTP_CLIENT.SendAsync(request, HttpCompletionOption.ResponseHeadersRead, token))
             {
                 response.EnsureSuccessStatusCode();
                 using (StreamReader reader = new StreamReader(await response.Content.ReadAsStreamAsync(token)))

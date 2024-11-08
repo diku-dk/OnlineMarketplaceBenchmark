@@ -67,8 +67,8 @@ public abstract class AbstractCustomerWorker : ICustomerWorker
                                   new DiscreteUniform(sellerRange.min, sellerRange.max, new Random()) :
                                   new Zipf(sellerZipfian, sellerRange.max, new Random());
         this.productIdGenerator = keyDistribution == DistributionType.UNIFORM ?
-                                new DiscreteUniform(1, numberOfProducts, new Random()) :
-                                new Zipf(productZipfian, numberOfProducts, new Random());
+                                new DiscreteUniform(1, this.numberOfProducts, new Random()) :
+                                new Zipf(productZipfian, this.numberOfProducts, new Random());
 
         this.submittedTransactions.Clear();
         this.finishedTransactions.Clear();
@@ -92,7 +92,7 @@ public abstract class AbstractCustomerWorker : ICustomerWorker
     public void Checkout(string tid)
     {
         // define whether client should send a checkout request
-        if (this.random.Next(0, 101) > this.config.checkoutProbability)
+        if (this.config.checkoutProbability < 100 && this.random.Next(0, 101) > this.config.checkoutProbability)
         {
             this.InformFailedCheckout();
             return;

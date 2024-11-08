@@ -50,6 +50,10 @@
         ]
     },
     "customerWorkerConfig": {
+        "minMaxNumItemsRange": {
+            "min": 1,
+            "max": 10
+        },
         "minMaxQtyRange": {
             "min": 1,
             "max": 10
@@ -58,7 +62,6 @@
             "min": 1,
             "max": 1000
         },
-        "maxNumberKeysToAddToCart": 10,
         "checkoutProbability": 100,
         "voucherProbability": 0,
         "productUrl": "http://127.0.0.1:5008",

@@ -122,7 +122,7 @@ public abstract class AbstractExperimentManager
         {
             HttpRequestMessage message = new HttpRequestMessage(HttpMethod.Patch, task.url);
             LOGGER.LogInformation(PostRunMessage, task.url);
-            resps_.Add(HttpUtils.client.SendAsync(message));
+            resps_.Add(HttpUtils.HTTP_CLIENT.SendAsync(message));
         }
         await Task.WhenAll(resps_);
     }
@@ -137,7 +137,7 @@ public abstract class AbstractExperimentManager
             HttpRequestMessage message = new HttpRequestMessage(HttpMethod.Patch, task.url);
             LOGGER.LogInformation(PostExpMessage, task.url);
             try {
-                HttpUtils.client.Send(message);
+                HttpUtils.HTTP_CLIENT.Send(message);
             }
             catch(Exception e)
             {

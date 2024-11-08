@@ -17,7 +17,6 @@ namespace Common.Workers.Seller;
 public class DefaultSellerWorker : AbstractSellerWorker
 {
 
-    // many threads can access the same seller. to avoid contention in the network channel, it is better to use a connection per thread
     private readonly HttpClient httpClient;
 
 	protected DefaultSellerWorker(int sellerId, IHttpClientFactory httpClientFactory, SellerWorkerConfig workerConfig, ILogger logger) : base(sellerId, workerConfig, logger)

@@ -5,7 +5,7 @@
 */
 public sealed class CustomerWorkerConfig
 {
-    public int maxNumberKeysToAddToCart { get; set; }
+    public Interval minMaxNumItemsRange { get; set; }
 
     // probability of a customer to checkout the cart
     public int checkoutProbability { get; set; }
@@ -23,18 +23,21 @@ public sealed class CustomerWorkerConfig
     // flag that defines whether submitted TIDs are tracked
     public bool trackTids { get; set; }
 
+    // flag that defines whether all items are from the same seller
+    public bool uniqueSeller { get; set; }
+
     public CustomerWorkerConfig(){}
 
-    public CustomerWorkerConfig(int maxNumberKeysToAddToCart, int checkoutProbability, string cartUrl,
-        Interval minMaxQtyRange, Interval delayBetweenRequestsRange, int voucherProbability, bool trackTids)
+    public CustomerWorkerConfig(Interval minMaxNumItemsRange, int checkoutProbability, string cartUrl, Interval minMaxQtyRange, Interval delayBetweenRequestsRange, int voucherProbability, bool trackTids, bool uniqueSeller)
     {
-        this.maxNumberKeysToAddToCart = maxNumberKeysToAddToCart;
+        this.minMaxNumItemsRange = minMaxNumItemsRange;
         this.checkoutProbability = checkoutProbability;
         this.cartUrl = cartUrl;
         this.minMaxQtyRange = minMaxQtyRange;
         this.delayBetweenRequestsRange = delayBetweenRequestsRange;
         this.voucherProbability = voucherProbability;
         this.trackTids = trackTids;
+        this.uniqueSeller = uniqueSeller;
     }
 
 }

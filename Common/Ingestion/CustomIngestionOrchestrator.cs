@@ -104,7 +104,7 @@ public sealed class CustomIngestionOrchestrator
         {
             Content = HttpUtils.BuildPayload(JsonConvert.SerializeObject(obj))
         };
-        var response = HttpUtils.client.Send(message, HttpCompletionOption.ResponseHeadersRead);
+        var response = HttpUtils.HTTP_CLIENT.Send(message, HttpCompletionOption.ResponseHeadersRead);
         if (!response.IsSuccessStatusCode)
         {
             errors.Add((url,response.StatusCode+" : "+response.ReasonPhrase));

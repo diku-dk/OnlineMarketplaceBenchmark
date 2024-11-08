@@ -4,18 +4,18 @@ namespace Common.Http;
 
 public sealed class HttpUtils
 {
-    public static readonly HttpClient client; 
+    public static readonly HttpClient HTTP_CLIENT; 
 
     static HttpUtils()
     {
-        client = new HttpClient(new SocketsHttpHandler()
+        HTTP_CLIENT = new HttpClient(new SocketsHttpHandler()
         {
             UseProxy = false,
             Proxy = null,
             UseCookies = false,
         });
-        client.Timeout = TimeSpan.FromMilliseconds(1000);
-        client.DefaultRequestHeaders.ConnectionClose = false;
+        HTTP_CLIENT.Timeout = TimeSpan.FromMilliseconds(1000);
+        HTTP_CLIENT.DefaultRequestHeaders.ConnectionClose = false;
     }
 
     private static readonly string JsonContentType = "application/json";

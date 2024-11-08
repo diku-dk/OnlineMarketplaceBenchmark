@@ -76,7 +76,7 @@ public sealed class DaprExperimentManager : AbstractExperimentManager
         {
             HttpRequestMessage message = new HttpRequestMessage(HttpMethod.Patch, task.url);
             LOGGER.LogInformation("Pre experiment task to URL {0}", task.url);
-            resps_.Add(HttpUtils.client.SendAsync(message));
+            resps_.Add(HttpUtils.HTTP_CLIENT.SendAsync(message));
         }
         await Task.WhenAll(resps_);
 
@@ -111,7 +111,7 @@ public sealed class DaprExperimentManager : AbstractExperimentManager
             {
                 HttpRequestMessage message = new HttpRequestMessage(HttpMethod.Patch, task.url);
                 LOGGER.LogInformation("Post run task to Microservice {0} URL {1}", task.name, task.url);
-                responses.Add(HttpUtils.client.SendAsync(message));
+                responses.Add(HttpUtils.HTTP_CLIENT.SendAsync(message));
             }
             await Task.WhenAll(responses);
             LOGGER.LogInformation("Post run tasks finished");

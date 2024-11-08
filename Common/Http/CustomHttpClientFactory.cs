@@ -2,28 +2,35 @@
 
 public sealed class CustomHttpClientFactory : IHttpClientFactory
 {
-	public CustomHttpClientFactory()
+	private CustomHttpClientFactory()
 	{
 	}
 
-    static readonly SocketsHttpHandler handler = new SocketsHttpHandler
+    private static readonly CustomHttpClientFactory INSTANCE = CustomHttpClientFactory.GetInstance();
+
+    public static CustomHttpClientFactory GetInstance()
+    {
+        return INSTANCE;
+    }
+
+    private static readonly SocketsHttpHandler handler = new SocketsHttpHandler
     {
         UseProxy = false,
         Proxy = null,
-        UseCookies = false, 
+        UseCookies = false
     };
 
-    static readonly HttpClient sharedClient;
+    private static readonly HttpClient SHARED_HTTP_CLIENT;
 
     static CustomHttpClientFactory() {
-        sharedClient = new HttpClient(handler);
-        sharedClient.Timeout = TimeSpan.FromMilliseconds(250);
-        sharedClient.DefaultRequestHeaders.ConnectionClose = false;
+        SHARED_HTTP_CLIENT = new HttpClient(handler);
+        SHARED_HTTP_CLIENT.Timeout = TimeSpan.FromMilliseconds(250);
+        SHARED_HTTP_CLIENT.DefaultRequestHeaders.ConnectionClose = false;
     }
 
     public HttpClient CreateClient(string name = null)
     {
-        return sharedClient;
+        return SHARED_HTTP_CLIENT;
     }
 }
 
