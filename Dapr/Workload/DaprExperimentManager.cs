@@ -52,37 +52,30 @@ public sealed class DaprExperimentManager : AbstractExperimentManager
         }
     }
 
-    public async void TrimStreams()
+    public async Task TrimStreams()
     {
+        LOGGER.LogInformation("Triggering trimming streams");
         await RedisUtils.TrimStreams(this.redisConfig, this.channelsToTrim);
+        LOGGER.LogInformation("Trimming streams completed");
     }
 
     public override async void PostExperiment()
     {
-        await RedisUtils.TrimStreams(this.redisConfig, this.channelsToTrim);
+        await TrimStreams();
         base.PostExperiment();
     }
 
     /**
-     * 1. Trim streams
-     * 2. Initialize all customer objects
-     * 3. Initialize delivery as a single object, but multithreaded
+     * 1. Cleanup microservice states
+     * 2. Trim streams
+     * 3. Call default pre experiment procedure
      */
     protected override async void PreExperiment()
     {
-        // cleanup microservice states
-        var resps_ = new List<Task<HttpResponseMessage>>();
-        foreach (var task in this.config.postExperimentTasks)
-        {
-            HttpRequestMessage message = new HttpRequestMessage(HttpMethod.Patch, task.url);
-            LOGGER.LogInformation("Pre experiment task to URL {0}", task.url);
-            resps_.Add(HttpUtils.HTTP_CLIENT.SendAsync(message));
-        }
-        await Task.WhenAll(resps_);
-
-        await RedisUtils.TrimStreams(this.redisConfig, this.channelsToTrim);
-
+        // must execute first to make pre workload procedure does not find customer objects
         base.PreExperiment();
+        base.PostExperiment();
+        await TrimStreams();
     }
 
     protected override async void PostRunTasks(int runIdx)
@@ -94,7 +87,6 @@ public sealed class DaprExperimentManager : AbstractExperimentManager
         if (runIdx < this.config.runs.Count - 1)
         {
             LOGGER.LogInformation("Post run tasks started");
-            var responses = new List<Task<HttpResponseMessage>>();
             List<PostRunTask> postRunTasks;
             // must call the cleanup if next run changes number of products
             if (config.runs[runIdx + 1].numProducts != config.runs[runIdx].numProducts)
@@ -110,10 +102,16 @@ public sealed class DaprExperimentManager : AbstractExperimentManager
             foreach (var task in postRunTasks)
             {
                 HttpRequestMessage message = new HttpRequestMessage(HttpMethod.Patch, task.url);
-                LOGGER.LogInformation("Post run task to Microservice {0} URL {1}", task.name, task.url);
-                responses.Add(HttpUtils.HTTP_CLIENT.SendAsync(message));
+                LOGGER.LogInformation(PostRunMessage, task.name, task.url);
+                try {
+                    HttpUtils.HTTP_CLIENT.Send(message);
+                }
+                catch(Exception e)
+                {
+                    LOGGER.LogError(PostRunErrorMessage, task.name, task.url, e.Message);
+                }
             }
-            await Task.WhenAll(responses);
+            
             LOGGER.LogInformation("Post run tasks finished");
         }
 

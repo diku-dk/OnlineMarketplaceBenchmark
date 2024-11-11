@@ -87,7 +87,7 @@
         "cartUrl": "http://localhost:8080/cart",
         "checkoutUrl": "http://localhost:8091/cart",
         "trackTids": false,
-        "uniqueSeller":  true
+        "uniqueSeller": true
     },
     "sellerWorkerConfig": {
         "trackUpdates": false,

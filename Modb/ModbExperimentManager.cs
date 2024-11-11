@@ -70,8 +70,9 @@ public sealed class ModbExperimentManager : AbstractExperimentManager
                 }
             }
 
-            // this.metricManager.SimpleCollect(startTime, finishTime, pollingTask.Result);
-            this.metricManager.Collect(startTime, finishTime, this.config.epoch);
+            string runName = string.Format("{0}#{1}_{2}_{3}_{4}_{5}_{6}", startTime, 0, this.config.numCustomers, this.config.concurrencyLevel, this.config.runs[0].numProducts, this.config.runs[0].sellerDistribution, this.config.runs[0].keyDistribution);
+
+            this.metricManager.Collect(startTime, finishTime, this.config.epoch, runName);
             if (this.WaitCompletion())
             {
                 this.PostExperiment();

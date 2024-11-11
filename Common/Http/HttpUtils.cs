@@ -13,8 +13,10 @@ public sealed class HttpUtils
             UseProxy = false,
             Proxy = null,
             UseCookies = false,
+            AllowAutoRedirect = false,
+            PreAuthenticate = false,
         });
-        HTTP_CLIENT.Timeout = TimeSpan.FromMilliseconds(1000);
+        HTTP_CLIENT.Timeout = TimeSpan.FromMilliseconds(2000);
         HTTP_CLIENT.DefaultRequestHeaders.ConnectionClose = false;
     }
 

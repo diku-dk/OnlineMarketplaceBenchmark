@@ -7,7 +7,7 @@
     "epoch": 0,
     "delayBetweenRequests": 0,
     "delayBetweenRuns": 0,
-    "concurrencyLevel": 4,
+    "concurrencyLevel": 1,
     "concurrencyType": "CONTINUOUS", // CONTINUOUS or CONTROL
     "transactionDistribution": {
         "PRICE_UPDATE": 10,

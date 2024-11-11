@@ -6,7 +6,7 @@ public sealed class CustomHttpClientFactory : IHttpClientFactory
 	{
 	}
 
-    private static readonly CustomHttpClientFactory INSTANCE = CustomHttpClientFactory.GetInstance();
+    private static readonly CustomHttpClientFactory INSTANCE = new CustomHttpClientFactory();
 
     public static CustomHttpClientFactory GetInstance()
     {
@@ -17,7 +17,9 @@ public sealed class CustomHttpClientFactory : IHttpClientFactory
     {
         UseProxy = false,
         Proxy = null,
-        UseCookies = false
+        UseCookies = false,
+        AllowAutoRedirect = false,
+        PreAuthenticate = false,
     };
 
     private static readonly HttpClient SHARED_HTTP_CLIENT;

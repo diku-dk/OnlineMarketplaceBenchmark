@@ -20,9 +20,10 @@ namespace Common.Experiment;
 
 public abstract class AbstractExperimentManager
 {
-    protected const string PostExpMessage = "Post experiment task to URL {0}";
-    protected const string PostRunMessage = "Post run task to URL {0}";
-    protected const string PostRunErrorMessage = "Post run task to URL {0} failed:\n{1}";
+    protected const string PostExpMessage = "Post experiment task {0} to URL {1}";
+    protected const string PostExpErrorMessage = "Post experiment task {0} to URL {1} failed:\n{2}";
+    protected const string PostRunMessage = "Post run task {0} to URL {1}";
+    protected const string PostRunErrorMessage = "Post run task {0} to URL {1} failed:\n{2}";
     protected const string ConnOpenedMessage = "Perhaps connection is already opened? Message={0}";
     protected const string RunFinishedMessage = "Run #{0} finished at {1}";
     protected const string NumProdChangedFromLastRunMessage = "Run #{0} number of products changed from last run {1}";
@@ -83,18 +84,25 @@ public abstract class AbstractExperimentManager
         this.metricManager = buildMetricManagerDelegate(sellerService, customerService, deliveryService);
     }
 
+    /**
+     * Initialize all customer objects
+     */
     protected virtual void PreExperiment()
     {
-        Console.WriteLine("Initializing customer workers...");
+        LOGGER.LogInformation("Initializing customer workers...");
         for (int i = this.customerRange.min; i <= this.customerRange.max; i++)
         {
             this.customerThreads.Add(i, this.customerService.BuildCustomerWorker(this.httpClientFactory, this.sellerService, this.config.numProdPerSeller, this.config.customerWorkerConfig, this.customers[i - 1]));
         }
     }
 
+     /**
+     * 1. Initialize all seller objects
+     * 2. Set distributions on customer objects
+     */
     protected virtual void PreWorkload(int runIdx)
     {
-        Console.WriteLine("Initializing seller workers...");
+        LOGGER.LogInformation("Initializing seller workers...");
         this.numSellers = (int)DuckDbUtils.Count(this.connection, "sellers");
         for (int i = 1; i <= this.numSellers; i++)
         {
@@ -106,7 +114,7 @@ public abstract class AbstractExperimentManager
             this.sellerThreads[i].SetUp(products, this.config.runs[runIdx].keyDistribution,  this.config.runs[runIdx].productZipfian);
         }
 
-        Console.WriteLine("Setting up seller workload info in customer workers...");
+        LOGGER.LogInformation("Setting up seller workload data in customer workers...");
         Interval sellerRange = new Interval(1, this.numSellers);
         for (int i = this.customerRange.min; i <= this.customerRange.max; i++)
         {
@@ -114,41 +122,42 @@ public abstract class AbstractExperimentManager
         }
     }
 
-    protected virtual async void PostRunTasks(int runIdx)
+     /**
+     * Reset microservice states
+     */
+    protected virtual void PostRunTasks(int runIdx)
     {
-        // reset microservice states
-        var resps_ = new List<Task<HttpResponseMessage>>();
         foreach (var task in this.config.postRunTasks)
         {
             HttpRequestMessage message = new HttpRequestMessage(HttpMethod.Patch, task.url);
-            LOGGER.LogInformation(PostRunMessage, task.url);
-            resps_.Add(HttpUtils.HTTP_CLIENT.SendAsync(message));
-        }
-        await Task.WhenAll(resps_);
-    }
-
-    /**
-     * Cleanup microservice states
-     */
-    private void TriggerPostExperimentTasks()
-    {
-        foreach (var task in this.config.postExperimentTasks)
-        {
-            HttpRequestMessage message = new HttpRequestMessage(HttpMethod.Patch, task.url);
-            LOGGER.LogInformation(PostExpMessage, task.url);
+            LOGGER.LogInformation(PostRunMessage, task.name, task.url);
             try {
                 HttpUtils.HTTP_CLIENT.Send(message);
             }
             catch(Exception e)
             {
-                LOGGER.LogError(PostRunErrorMessage, task.url, e.Message);
+                LOGGER.LogError(PostRunErrorMessage, task.name, task.url, e.Message);
             }
         }
     }
 
+    /**
+     * Cleanup microservice states
+     */
     public virtual void PostExperiment()
     {
-        this.TriggerPostExperimentTasks();
+        foreach (var task in this.config.postExperimentTasks)
+        {
+            HttpRequestMessage message = new HttpRequestMessage(HttpMethod.Patch, task.url);
+            LOGGER.LogInformation(PostExpMessage, task.name, task.url);
+            try {
+                HttpUtils.HTTP_CLIENT.Send(message);
+            }
+            catch(Exception e)
+            {
+                LOGGER.LogError(PostExpErrorMessage, task.name, task.url, e.Message);
+            }
+        }
     }
 
     protected virtual void Collect(int runIdx, DateTime startTime, DateTime finishTime)
@@ -160,7 +169,7 @@ public abstract class AbstractExperimentManager
 
     public virtual async Task Run()
     {
-        try{
+        try {
             this.connection.Open();
         } catch(InvalidOperationException e)
         {

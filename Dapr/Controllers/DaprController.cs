@@ -141,7 +141,7 @@ public class DaprController : ControllerBase
     [Route("/7")]
     [HttpPost]
     [ProducesResponseType((int)HttpStatusCode.OK)]
-    public ActionResult TrimStreams()
+    public async Task<ActionResult> TrimStreams()
     {
         if(CONFIG is null)
         {
@@ -149,8 +149,8 @@ public class DaprController : ControllerBase
         }
         var expManager = DaprExperimentManager
                             .BuildDaprExperimentManager(CustomHttpClientFactory.GetInstance(), CONFIG, CONNECTION);
-        expManager.TrimStreams();
-        Console.WriteLine(STREAMS_TRIMMED_OK);
+        await expManager.TrimStreams();
+        logger.LogInformation(STREAMS_TRIMMED_OK);
         return Ok(STREAMS_TRIMMED_OK);
     }
 

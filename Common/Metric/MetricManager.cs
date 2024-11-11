@@ -243,7 +243,7 @@ public class MetricManager
                 {
                     double percValue = ArrayStatistics.PercentileInplace(entry.Value.ToArray(), perc);
                     LOGGER.LogInformation("Transaction: {0} - #{1} - {2}th percentile end-to-end latency: {3}", entry.Key, entry.Value.Count, perc, percValue);
-                    sw.WriteLine("Transaction: {0} - #{1} - {2}th percentile end-to-end latency: {2}", entry.Key, entry.Value.Count, perc, percValue);
+                    sw.WriteLine("Transaction: {0} - #{1} - {2}th percentile end-to-end latency: {3}", entry.Key, entry.Value.Count, perc, percValue);
                 }
             }
         }
@@ -315,7 +315,7 @@ public class MetricManager
                     {
                         double percValue = ArrayStatistics.PercentileInplace(entry.Value.ToArray(), perc);
                         LOGGER.LogInformation("Transaction: {0} - #{1} - {2}th percentile end-to-end latency: {3}", entry.Key, entry.Value.Count, perc, percValue);
-                        sw.WriteLine("Transaction: {0} - #{1} - {2}th percentile end-to-end latency: {2}", entry.Key, entry.Value.Count, perc, percValue);
+                        sw.WriteLine("Transaction: {0} - #{1} - {2}th percentile end-to-end latency: {3}", entry.Key, entry.Value.Count, perc, percValue);
                     }
                 }
             }
