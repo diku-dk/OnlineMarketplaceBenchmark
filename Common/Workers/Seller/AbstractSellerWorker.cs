@@ -2,7 +2,6 @@
 using Common.Distribution;
 using Common.Entities;
 using Common.Streaming;
-using Common.Workload;
 using Common.Workload.Metrics;
 using Common.Workload.Seller;
 using MathNet.Numerics.Distributions;

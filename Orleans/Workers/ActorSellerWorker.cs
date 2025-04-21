@@ -11,12 +11,11 @@ public sealed class ActorSellerWorker : DefaultSellerWorker
 {
 
 	private ActorSellerWorker(int sellerId, IHttpClientFactory httpClientFactory, SellerWorkerConfig workerConfig, ILogger logger) : base(sellerId, httpClientFactory, workerConfig, logger)
-	{
-	}
+	{ }
 
 	public static new ActorSellerWorker BuildSellerWorker(int sellerId, IHttpClientFactory httpClientFactory, SellerWorkerConfig workerConfig)
     {
-        var logger = LoggerProxy.GetInstance("SellerThread_"+ sellerId);
+        var logger = LoggerProxy.GetInstance("Seller_"+ sellerId);
         return new ActorSellerWorker(sellerId, httpClientFactory, workerConfig, logger);
     }
 

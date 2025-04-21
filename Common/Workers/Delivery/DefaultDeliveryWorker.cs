@@ -52,7 +52,7 @@ public class DefaultDeliveryWorker : IDeliveryWorker
                 var endTime = DateTime.UtcNow;
                 var init = new TransactionIdentifier(tid, TransactionType.UPDATE_DELIVERY, initTime);
                 this.submittedTransactions.Add(init);
-                DoAfterSuccessSubmission(new TransactionOutput(tid, endTime));
+                this.DoAfterSuccessSubmission(new TransactionOutput(tid, endTime));
             }
             else
             {
@@ -68,7 +68,7 @@ public class DefaultDeliveryWorker : IDeliveryWorker
 
     protected virtual void DoAfterSuccessSubmission(TransactionOutput transactionOutput)
     {
-        AddFinishedTransaction(transactionOutput);
+        this.AddFinishedTransaction(transactionOutput);
     }
 
     public List<TransactionMark> GetAbortedTransactions()

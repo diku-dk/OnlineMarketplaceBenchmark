@@ -31,8 +31,8 @@ public abstract class AbstractCustomerWorker : ICustomerWorker
     // it is not necessary to be concurrent 
     protected readonly List<TransactionIdentifier> submittedTransactions;
 
-    // concurrent data structure because results are received asynchronously, possibly by concurrent pulling threads    
-    private readonly ConcurrentBag<TransactionOutput> finishedTransactions;
+    // concurrent data structure because results can be received asynchronously, possibly by concurrent threads    
+    protected readonly ConcurrentBag<TransactionOutput> finishedTransactions;
 
     protected readonly List<TransactionMark> abortedTransactions;
 

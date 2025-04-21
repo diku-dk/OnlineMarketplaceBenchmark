@@ -34,7 +34,7 @@ public sealed class SellerService : ISellerService
         return this.sellers[sellerId].GetSubmittedTransactions();
     }
 
-    public void Run(int sellerId, string tid, TransactionType type) => sellers[sellerId].Run(tid, type);
+    public void Run(int sellerId, string tid, TransactionType type) => this.sellers[sellerId].Run(tid, type);
 
     public List<TransactionMark> GetAbortedTransactions()
     {

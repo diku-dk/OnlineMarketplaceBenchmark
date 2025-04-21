@@ -43,7 +43,7 @@ public class Program
                         connection.Open();
                     }
                 }
-                await CustomIngestionOrchestrator.Run(connection, config.ingestionConfig);
+                await DefaultIngestionOrchestrator.Run(connection, config.ingestionConfig);
                 break;
             }
             case "3":
@@ -62,7 +62,7 @@ public class Program
                     }
                 }
                 var expManager = ActorExperimentManager.BuildActorExperimentManager(CustomHttpClientFactory.GetInstance(), config, connection);
-                await expManager.RunSimpleExperiment(2);
+                expManager.RunSimpleExperiment();
                 break;
             }
             case "4":
@@ -80,13 +80,15 @@ public class Program
                     }
                 }
                 // ingest data
-                await CustomIngestionOrchestrator.Run(connection, config.ingestionConfig);
+                await DefaultIngestionOrchestrator.Run(connection, config.ingestionConfig);
                 var expManager = ActorExperimentManager.BuildActorExperimentManager(CustomHttpClientFactory.GetInstance(), config, connection);
-                // could be a config param: delay after ingest
-                Console.WriteLine("Delay after ingest...");
-                await Task.Delay(10000);
+                if(config.delayBetweenRuns > 0)
+                {
+                    Console.WriteLine($"Delay of {config.delayBetweenRuns} ms after ingest.");
+                    await Task.Delay(config.delayBetweenRuns);
+                }
                 // run
-                await expManager.RunSimpleExperiment(2);
+                expManager.RunSimpleExperiment();
                 Console.WriteLine("Experiment finished.");
                 break;
             }

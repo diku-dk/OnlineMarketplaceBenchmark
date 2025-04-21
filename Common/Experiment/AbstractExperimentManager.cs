@@ -2,7 +2,6 @@
 using Common.Entities;
 using Common.Http;
 using Common.Infra;
-using Common.Ingestion;
 using Common.Metric;
 using Common.Services;
 using Common.Workers.Customer;
@@ -217,7 +216,7 @@ public abstract class AbstractExperimentManager
 
                 syntheticDataGenerator.Generate(connection);
 
-                await IngestionOrchestratorV1.Run(connection, config.ingestionConfig);
+                await DefaultIngestionOrchestrator.Run(connection, config.ingestionConfig);
     
                 if (runIdx == 0)
                 {
@@ -233,10 +232,7 @@ public abstract class AbstractExperimentManager
 
             LOGGER.LogInformation(RunStartedMessage, runIdx, DateTime.UtcNow);
 
-            var workloadTask = this.workloadManager.Run();
-
-            DateTime startTime = workloadTask.startTime;
-            DateTime finishTime = workloadTask.finishTime;
+            (DateTime startTime, DateTime finishTime) = this.workloadManager.Run();
 
             LOGGER.LogInformation(ConvergeWaitMessage, this.config.delayBetweenRuns / 1000);
             Thread.Sleep(this.config.delayBetweenRuns);

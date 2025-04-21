@@ -241,5 +241,6 @@ We intend to count the "add item to cart" operation as a measured query in the d
 - [Orleans Docker deployment](http://sergeybykov.github.io/orleans/1.5/Documentation/Deployment-and-Operations/Docker-Deployment.html)
 - [Interlocked](https://learn.microsoft.com/en-us/dotnet/api/system.threading.interlocked.increment?view=net-7.0&redirectedfrom=MSDN#System_Threading_Interlocked_Increment_System_Int32__)
 - [Locust](https://github.com/GoogleCloudPlatform/microservices-demo/blob/main/src/loadgenerator/locustfile.py)
-- [HttpClient](https://www.stevejgordon.co.uk/using-httpcompletionoption-responseheadersread-to-improve-httpclient-performance-dotnet)
-- [HttpClient](https://www.stevejgordon.co.uk/httpclient-connection-pooling-in-dotnet-core)
+- [Http client optimization](https://www.stevejgordon.co.uk/using-httpcompletionoption-responseheadersread-to-improve-httpclient-performance-dotnet)
+- [Http client connection pooling](https://www.stevejgordon.co.uk/httpclient-connection-pooling-in-dotnet-core)
+- [Http client timeout handling](https://thomaslevesque.com/2018/02/25/better-timeout-handling-with-httpclient/)

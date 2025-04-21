@@ -25,7 +25,7 @@ public sealed class DriverBenchSellerWorker : AbstractSellerWorker
         this.submittedTransactions.Add(new TransactionIdentifier(tid, TransactionType.QUERY_DASHBOARD, DateTime.UtcNow));
         Thread.Sleep(100);
         this.finishedTransactions.Add(new TransactionOutput(tid, DateTime.UtcNow));
-        while (!Shared.ResultQueue.Writer.TryWrite(Shared.ITEM)) ;
+        while (!Shared.ResultQueue.Writer.TryWrite(Shared.ITEM));
     }
 
     protected override void SendProductUpdateRequest(Product product, string tid)
@@ -33,7 +33,7 @@ public sealed class DriverBenchSellerWorker : AbstractSellerWorker
         this.submittedTransactions.Add(new TransactionIdentifier(tid, TransactionType.UPDATE_PRODUCT, DateTime.UtcNow));
         Thread.Sleep(100);
         this.finishedTransactions.Add(new TransactionOutput(tid, DateTime.UtcNow));
-        while (!Shared.ResultQueue.Writer.TryWrite(Shared.ITEM)) ;
+        while (!Shared.ResultQueue.Writer.TryWrite(Shared.ITEM));
     }
 
     protected override void SendUpdatePriceRequest(Product productToUpdate, string tid)

@@ -63,10 +63,10 @@ public sealed class ModbExperimentManager : AbstractExperimentManager
                 var finishedTs = BatchTrackingUtils.batchToFinishedTsMap[entry.Value.batchId];
                 TransactionOutput transactionOutput = new TransactionOutput(entry.Key, finishedTs);
                 if(entry.Value.transactionType == TransactionType.CUSTOMER_SESSION){
-                    customerService.AddFinishedTransaction(entry.Value.workerId, transactionOutput);
+                    this.customerService.AddFinishedTransaction(entry.Value.workerId, transactionOutput);
                 } else
                 {
-                    sellerService.AddFinishedTransaction(entry.Value.workerId, transactionOutput);
+                    this.sellerService.AddFinishedTransaction(entry.Value.workerId, transactionOutput);
                 }
             }
 

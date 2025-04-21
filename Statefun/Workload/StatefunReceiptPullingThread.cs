@@ -36,11 +36,11 @@ public sealed class StatefunPollingThread
             try
             {
                 i++;
-                HttpResponseMessage response = await httpClient.GetAsync(url);
+                HttpResponseMessage response = await httpClient.GetAsync(url, CancellationToken.None);
                 if (response.IsSuccessStatusCode)
                 {
                     DateTime endTime = DateTime.UtcNow;
-                    string responseBody = await response.Content.ReadAsStringAsync();
+                    string responseBody = await response.Content.ReadAsStringAsync(CancellationToken.None);
                     if (string.IsNullOrEmpty(responseBody))
                     {
                         continue;
@@ -48,7 +48,7 @@ public sealed class StatefunPollingThread
                     JObject jsonObject = JObject.Parse(responseBody);
                     TransactionMark transactionMark = JsonConvert.DeserializeObject<TransactionMark>(jsonObject.ToString());
 
-                    await Shared.ResultQueue.Writer.WriteAsync(Shared.ITEM);
+                    await Shared.ResultQueue.Writer.WriteAsync(Shared.ITEM, CancellationToken.None);
 
                     TransactionOutput transactionOutput = new TransactionOutput(transactionMark.tid, endTime);
                     int actorId = transactionMark.actorId;
@@ -58,37 +58,37 @@ public sealed class StatefunPollingThread
                         case TransactionType.CUSTOMER_SESSION:
                             this.customerService.AddFinishedTransaction(actorId, transactionOutput);
                             if (transactionMark.status == MarkStatus.SUCCESS)
-                                await Shared.CheckoutOutputs.Writer.WriteAsync(transactionOutput);
+                                await Shared.CheckoutOutputs.Writer.WriteAsync(transactionOutput, CancellationToken.None);
                             else
-                                await Shared.PoisonCheckoutOutputs.Writer.WriteAsync(transactionMark);
+                                await Shared.PoisonCheckoutOutputs.Writer.WriteAsync(transactionMark, CancellationToken.None);
                             break;
                         case TransactionType.PRICE_UPDATE:
                             this.sellerService.AddFinishedTransaction(actorId, transactionOutput);
                             if (transactionMark.status == MarkStatus.SUCCESS)
-                                await Shared.PriceUpdateOutputs.Writer.WriteAsync(transactionOutput);
+                                await Shared.PriceUpdateOutputs.Writer.WriteAsync(transactionOutput, CancellationToken.None);
                             else
-                                await Shared.PoisonPriceUpdateOutputs.Writer.WriteAsync(transactionMark);
+                                await Shared.PoisonPriceUpdateOutputs.Writer.WriteAsync(transactionMark, CancellationToken.None);
                             break;
                         case TransactionType.UPDATE_PRODUCT:
                             this.sellerService.AddFinishedTransaction(actorId, transactionOutput);
                             if (transactionMark.status == MarkStatus.SUCCESS)
-                                await Shared.ProductUpdateOutputs.Writer.WriteAsync(transactionOutput);
+                                await Shared.ProductUpdateOutputs.Writer.WriteAsync(transactionOutput, CancellationToken.None);
                             else
-                                await Shared.PoisonProductUpdateOutputs.Writer.WriteAsync(transactionMark);
+                                await Shared.PoisonProductUpdateOutputs.Writer.WriteAsync(transactionMark, CancellationToken.None);
                             break;
                         case TransactionType.QUERY_DASHBOARD:
                             this.sellerService.AddFinishedTransaction(actorId, transactionOutput);
                             if (transactionMark.status == MarkStatus.SUCCESS)
-                                await Shared.DashboardQueryOutputs.Writer.WriteAsync(transactionOutput);
+                                await Shared.DashboardQueryOutputs.Writer.WriteAsync(transactionOutput, CancellationToken.None);
                             else
-                                await Shared.PoisonDashboardQueryOutputs.Writer.WriteAsync(transactionMark);
+                                await Shared.PoisonDashboardQueryOutputs.Writer.WriteAsync(transactionMark, CancellationToken.None);
                             break;
                         case TransactionType.UPDATE_DELIVERY:
                             this.deliveryService.AddFinishedTransaction(transactionOutput);
                             if (transactionMark.status == MarkStatus.SUCCESS)
-                                await Shared.DeliveryUpdateOutputs.Writer.WriteAsync(transactionOutput);
+                                await Shared.DeliveryUpdateOutputs.Writer.WriteAsync(transactionOutput, CancellationToken.None);
                             else
-                                await Shared.PoisonDeliveryUpdateOutputs.Writer.WriteAsync(transactionMark);
+                                await Shared.PoisonDeliveryUpdateOutputs.Writer.WriteAsync(transactionMark, CancellationToken.None);
                             break;
                         default:
                             throw new Exception("Unknown transaction type: " + transactionMark.type);

@@ -3,18 +3,17 @@
     "numCustomers": 10000,
     "numProdPerSeller": 10,
     "qtyPerProduct": 10000,
-    "executionTime": 60000,
-    "epoch": 10000,
-    "concurrencyLevel": 1,
-    "concurrencyType": "CONTROL",
+    "executionTime": 10000,
+    "epoch": 0,
+    "concurrencyLevel": 4,
+    "concurrencyType": "CONTINUOUS", // CONTINUOUS, CONTROL
     "delayBetweenRequests": 0,
     "delayBetweenRuns": 0,
     "transactionDistribution": {
-        "CUSTOMER_SESSION": 30,
-        "QUERY_DASHBOARD": 35,
-        "PRICE_UPDATE": 38,
-        "UPDATE_PRODUCT": 40,
-        "UPDATE_DELIVERY": 100
+        "PRICE_UPDATE": 10,
+        "UPDATE_PRODUCT": 20,
+        "QUERY_DASHBOARD": 30,
+        "CUSTOMER_SESSION": 100
     },
     "ingestionConfig": {
         "strategy": "WORKER_PER_CPU",
@@ -36,8 +35,16 @@
         }
     ],
     "postRunTasks": [
+        {
+            "name": "reset",
+            "url": "http://localhost:8081/reset"
+        }
     ],
     "postExperimentTasks": [
+        {
+            "name": "cleanup",
+            "url": "http://localhost:8081/cleanup"
+        }
     ],
     "customerWorkerConfig": {
         "minMaxNumItemsRange": {
@@ -48,22 +55,15 @@
             "min": 1,
             "max": 10
         },
-        "delayBetweenRequestsRange": {
-            "min": 1,
-            "max": 1000
-        },
         "checkoutProbability": 100,
         "voucherProbability": 5,
         "productUrl": "http://localhost:8081/product",
         "cartUrl": "http://localhost:8081/cart",
-        "trackTids": false
+        "trackTids": false,
+        "uniqueSeller": false
     },
     "sellerWorkerConfig": {
         "trackUpdates": false,
-        "delayBetweenRequestsRange": {
-            "min": 1,
-            "max": 1000
-        },
         "adjustRange": {
             "min": 1,
             "max": 10

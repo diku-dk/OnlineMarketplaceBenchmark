@@ -8,7 +8,11 @@ using Newtonsoft.Json.Linq;
 
 namespace Common.Ingestion;
 
-public sealed class IngestionOrchestratorV1
+/**
+ * Only used by Dapr and tests at the moment.
+ * The default ingestion orchestrator serves in most cases
+ */
+public sealed class StrategyIngestionOrchestrator
 {
 
 	public static async Task Run(DuckDBConnection connection, IngestionConfig config, bool debug = false)

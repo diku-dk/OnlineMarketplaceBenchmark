@@ -44,7 +44,7 @@ public sealed class Program
                         connection.Open();
                     }
                 }
-                await CustomIngestionOrchestrator.Run(connection, config.ingestionConfig);
+                await DefaultIngestionOrchestrator.Run(connection, config.ingestionConfig);
                 break;
             }
             case "3":
@@ -84,10 +84,10 @@ public sealed class Program
                     }
                 }
                 // ingest data
-                await CustomIngestionOrchestrator.Run(connection, config.ingestionConfig);
+                await DefaultIngestionOrchestrator.Run(connection, config.ingestionConfig);
                 var expManager = ModbExperimentManager
                                 .BuildModbExperimentManager(CustomHttpClientFactory.GetInstance(), config, connection);
-
+                // run
                 expManager.RunSimpleExperiment();
                 Console.WriteLine("Experiment finished.");
                 break;

@@ -38,7 +38,7 @@ public class IngestionTest
             }
         };
 
-        await IngestionOrchestratorV1.Run(connection, ingestionConfig, true);
+        await StrategyIngestionOrchestrator.Run(connection, ingestionConfig, true);
 
     }
 
@@ -84,7 +84,7 @@ public class IngestionTest
             }
         };
 
-        await IngestionOrchestratorV1.Run(connection, ingestionConfig, true);
+        await StrategyIngestionOrchestrator.Run(connection, ingestionConfig, true);
 
         // retrieve some random and see if they match
 

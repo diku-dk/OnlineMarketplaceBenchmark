@@ -16,7 +16,7 @@ public sealed class HttpUtils
             AllowAutoRedirect = false,
             PreAuthenticate = false,
         });
-        HTTP_CLIENT.Timeout = TimeSpan.FromMilliseconds(2000);
+        HTTP_CLIENT.Timeout = TimeSpan.FromMilliseconds(5000); // default is 100 seconds
         HTTP_CLIENT.DefaultRequestHeaders.ConnectionClose = false;
     }
 

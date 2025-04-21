@@ -70,7 +70,7 @@ public class DaprController : ControllerBase
         {
             return BadRequest("Please generate some data first by selecting option 1.");
         }
-        await IngestionOrchestratorV1.Run(CONNECTION, CONFIG.ingestionConfig);
+        await StrategyIngestionOrchestrator.Run(CONNECTION, CONFIG.ingestionConfig);
         return Ok("Data ingested");
     }
 
@@ -107,7 +107,7 @@ public class DaprController : ControllerBase
         {
             return BadRequest("Please generate some data first by selecting option 1.");
         }
-        await CustomIngestionOrchestrator.Run(CONNECTION, CONFIG.ingestionConfig);
+        await StrategyIngestionOrchestrator.Run(CONNECTION, CONFIG.ingestionConfig);
         var expManager = DaprExperimentManager
                             .BuildDaprExperimentManager(CustomHttpClientFactory.GetInstance(), CONFIG, CONNECTION);
         expManager.RunSimpleExperiment();

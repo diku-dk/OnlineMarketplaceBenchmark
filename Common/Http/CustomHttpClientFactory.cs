@@ -26,7 +26,7 @@ public sealed class CustomHttpClientFactory : IHttpClientFactory
 
     static CustomHttpClientFactory() {
         SHARED_HTTP_CLIENT = new HttpClient(handler);
-        SHARED_HTTP_CLIENT.Timeout = TimeSpan.FromMilliseconds(250);
+        SHARED_HTTP_CLIENT.Timeout = Timeout.InfiniteTimeSpan; // avoid throwing timeout exception
         SHARED_HTTP_CLIENT.DefaultRequestHeaders.ConnectionClose = false;
     }
 

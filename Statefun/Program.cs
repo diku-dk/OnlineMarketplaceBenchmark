@@ -87,7 +87,7 @@ public class Program
                             }
                         }
                         // ingest data
-                        await CustomIngestionOrchestrator.Run(connection, config.ingestionConfig);
+                        await DefaultIngestionOrchestrator.Run(connection, config.ingestionConfig);
                         Console.WriteLine("Delay after ingest...");
                         await Task.Delay(10000);
                         var expManager = StatefunExperimentManager.BuildStatefunExperimentManager(CustomHttpClientFactory.GetInstance(), config,connection);

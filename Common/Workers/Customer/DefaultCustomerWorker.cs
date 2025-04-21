@@ -26,7 +26,7 @@ public class DefaultCustomerWorker : AbstractCustomerWorker
     {
         this.httpClient = httpClient;
         this.cartItems = new Dictionary<(int, int), Product>(config.minMaxNumItemsRange.max);
-        this.tids = new HashSet<string>();
+        this.tids = config.trackTids ? new HashSet<string>() : null;
     }
 
     public static DefaultCustomerWorker BuildCustomerWorker(IHttpClientFactory httpClientFactory, ISellerService sellerService, int numberOfProducts, CustomerWorkerConfig config, Entities.Customer customer)
@@ -112,7 +112,7 @@ public class DefaultCustomerWorker : AbstractCustomerWorker
         string url = this.BuildCheckoutUrl();
         int maxAttempts = this.GetMaxCheckoutAttempts();
         DateTime sentTs;
-        int attempt = 0;
+        int attempt = 1;
         try
         {
             bool success = false;
@@ -123,10 +123,9 @@ public class DefaultCustomerWorker : AbstractCustomerWorker
                 {
                     Content = payload
                 });
-                attempt++;
                 success = resp.IsSuccessStatusCode;
-            } while(!success && attempt < maxAttempts);
-
+                attempt++;
+            } while(!success && attempt <= maxAttempts);
             if(success)
             {
                 this.DoAfterSuccessSubmission(tid);
@@ -138,7 +137,7 @@ public class DefaultCustomerWorker : AbstractCustomerWorker
         }
         catch (Exception e)
         {
-            this.logger.LogError("Customer {0} Url {1}: Exception Message: {5} ", this.customer.id, url, e.Message);
+            this.logger.LogError("Customer {0} Url {1}: Exception: {2} Message: {3} ", this.customer.id, url, e.GetType().Name, e.Message);
             this.InformFailedCheckout();
         }
     }
@@ -153,7 +152,6 @@ public class DefaultCustomerWorker : AbstractCustomerWorker
     {
         if (this.config.trackTids)
         {
-            // store
             this.tids.Add(tid);
         }
     }
@@ -161,14 +159,15 @@ public class DefaultCustomerWorker : AbstractCustomerWorker
     public override IDictionary<string, List<CartItem>> GetCartItemsPerTid(DateTime finishTime)
     {
         Dictionary<string,List<CartItem>> dict = new();
-        foreach(var tid in tids){
-            string url = this.config.cartUrl + "/" + this.customer.id + "/history/" + tid;
-            var resp = this.httpClient.Send(new(HttpMethod.Get, url));
-            if(resp.IsSuccessStatusCode){
-                // var str = resp.Content.ReadAsStringAsync();
-                using var reader = new StreamReader(resp.Content.ReadAsStream());
-                var str = reader.ReadToEnd();
-                dict.Add(tid, JsonConvert.DeserializeObject<List<CartItem>>(str));
+        if (this.config.trackTids){
+            foreach(var tid in this.tids){
+                string url = this.config.cartUrl + "/" + this.customer.id + "/history/" + tid;
+                var resp = this.httpClient.Send(new(HttpMethod.Get, url));
+                if(resp.IsSuccessStatusCode){
+                    using var reader = new StreamReader(resp.Content.ReadAsStream());
+                    var str = reader.ReadToEnd();
+                    dict.Add(tid, JsonConvert.DeserializeObject<List<CartItem>>(str));
+                }
             }
         }
         return dict;

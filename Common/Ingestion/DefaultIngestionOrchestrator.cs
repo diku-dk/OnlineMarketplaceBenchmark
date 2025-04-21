@@ -7,7 +7,7 @@ using Newtonsoft.Json.Linq;
 
 namespace Common.Infra;
 
-public sealed class CustomIngestionOrchestrator
+public sealed class DefaultIngestionOrchestrator
 {
 
 	public static async Task Run(DuckDBConnection connection, IngestionConfig config)
@@ -25,8 +25,6 @@ public sealed class CustomIngestionOrchestrator
         BlockingCollection<(JObject,string Url)> tuples = new BlockingCollection<(JObject,string Url)>();
 
         BlockingCollection<(string,string)> errors = new BlockingCollection<(string,string)>();
-
-        // Console.WriteLine($"Setting up {config.mapTableToUrl.Count} utility workers to read tuples from internal database and parse them into JSON...");
 
         foreach (var entry in config.mapTableToUrl)
         {
@@ -57,7 +55,7 @@ public sealed class CustomIngestionOrchestrator
 
         if(errors.Count > 0)
         {
-            Console.WriteLine("Errors found while ingesting. An example:");
+            Console.WriteLine($"{errors.Count} errors during ingestion. An example:");
             var errorEntry = errors.Take();
             Console.WriteLine(errorEntry.Item1+" "+errorEntry.Item2);
         }

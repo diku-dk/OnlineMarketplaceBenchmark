@@ -103,10 +103,13 @@ public class WorkloadManager
         if(this.concurrencyType == ConcurrencyType.CONTROL)
         {
             return this.RunControl();
-        } else
+        }
+        else
         {
             if(cancellationTokenSource == null)
+            {
                 return this.RunContinuous(new CancellationTokenSource());
+            }
             return this.RunContinuous(cancellationTokenSource);
         }
     }
@@ -152,7 +155,7 @@ public class WorkloadManager
             TransactionType tx = this.PickTransactionFromDistribution();
             currentTid++;
             var instanceId = threadId.ToString()+"-"+currentTid.ToString();
-            this.SubmitTransaction(instanceId, tx);
+            this.RunTransaction(instanceId, tx);
         }
         Console.WriteLine("Thread {0} finished. Last TID submitted was {1}", threadId, currentTid);
     }
@@ -167,15 +170,18 @@ public class WorkloadManager
         Stopwatch s = new Stopwatch();
         var execTime = TimeSpan.FromMilliseconds(this.executionTime);
         int currentTid = 1;
+        int tidToPass;
+        TransactionType txType;
         var startTime = DateTime.UtcNow;
         Console.WriteLine("Started sending batch of transactions with concurrency level {0} at {1}.", this.concurrencyLevel, startTime);
         s.Start();
         while (currentTid < this.concurrencyLevel)
         {
-            TransactionType tx = this.PickTransactionFromDistribution();
-            this.histogram[tx]++;
-            var toPass = currentTid;
-            _ = Task.Run(() => this.SubmitTransaction(toPass.ToString(), tx));
+            txType = this.PickTransactionFromDistribution();
+            this.histogram[txType]++;
+            // spawning in a different thread may lead to duplicate TIDs in actors
+            tidToPass = currentTid;
+            this.SubmitTransaction(tidToPass.ToString(), txType);
             currentTid++;
 
             // throttle
@@ -184,18 +190,16 @@ public class WorkloadManager
                 Thread.Sleep(this.delayBetweenRequests);
             }
         }
-
         
         while (s.Elapsed < execTime)
         {
-            TransactionType tx = this.PickTransactionFromDistribution();
-            this.histogram[tx]++;
-            var toPass = currentTid;
-            // spawning in a different thread may lead to duplicate tids in actors
-            _ = Task.Run(() => this.SubmitTransaction(toPass.ToString(), tx));
+            txType = this.PickTransactionFromDistribution();
+            this.histogram[txType]++;
+            tidToPass = currentTid;
+            this.SubmitTransaction(tidToPass.ToString(), txType);
             currentTid++;
 
-            // it is ok to waste cpu time for higher precision in experiment time
+            // it is ok to waste some cpu cycles for higher precision in experiment time
             // the load is in the target platform receiving the workload, not here
             while (!Shared.ResultQueue.Reader.TryRead(out _) && s.Elapsed < execTime) { }
 
@@ -209,7 +213,7 @@ public class WorkloadManager
         var finishTime = DateTime.UtcNow;
         s.Stop();
 
-        Console.WriteLine("Finished at {0}. Last TID submitted was {1}", finishTime, currentTid-1);
+        Console.WriteLine("Last TID submitted is {0} at {1}", currentTid - 1, finishTime);
         Console.WriteLine("Histogram:");
         foreach(var entry in this.histogram)
         {
@@ -232,7 +236,12 @@ public class WorkloadManager
         return TransactionType.NONE;
     }
 
-    protected virtual void SubmitTransaction(string tid, TransactionType type)
+    protected virtual void SubmitTransaction(string tid, TransactionType txType)
+    {
+        _ = Task.Run(() => this.RunTransaction(tid, txType), CancellationToken.None);
+    }
+
+    protected void RunTransaction(string tid, TransactionType type)
     {
         try
         {
@@ -264,7 +273,7 @@ public class WorkloadManager
                 default:
                 {
                     long threadId = Environment.CurrentManagedThreadId;
-                    Console.WriteLine("Thread ID " + threadId + " Unknown transaction type defined!");
+                    Console.WriteLine("Thread ID " + threadId + ": Unknown transaction type defined!");
                     break;
                 }
             }
