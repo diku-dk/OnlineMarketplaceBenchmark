@@ -6,6 +6,7 @@ using Common.Metric;
 using static Common.Services.CustomerService;
 using static Common.Services.DeliveryService;
 using static Common.Services.SellerService;
+using Common.Workload;
 
 namespace Orleans.Workload;
 
@@ -18,6 +19,6 @@ public sealed class ActorExperimentManager : AbstractExperimentManager
     }
 
     private ActorExperimentManager(IHttpClientFactory httpClientFactory, BuildSellerWorkerDelegate sellerWorkerDelegate, BuildCustomerWorkerDelegate customerWorkerDelegate, BuildDeliveryWorkerDelegate deliveryWorkerDelegate, ExperimentConfig config, DuckDBConnection connection) :
-        base(httpClientFactory, ActorWorkloadManager.BuildWorkloadManager, MetricManager.BuildMetricManager, sellerWorkerDelegate, customerWorkerDelegate, deliveryWorkerDelegate, config, connection) { }
+        base(httpClientFactory, config.concurrencyType == ConcurrencyType.CONTROL ?  ActorWorkloadManager.BuildWorkloadManager : WorkloadManager.BuildWorkloadManager, MetricManager.BuildMetricManager, sellerWorkerDelegate, customerWorkerDelegate, deliveryWorkerDelegate, config, connection) { }
 
 }
